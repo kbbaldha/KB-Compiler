@@ -64,7 +64,8 @@ public class SimpleParserTest {
 
 	@Test
 	public void testDec1() throws LexicalException, SyntaxException {
-		String input = "prog int k;";
+		String input = "prog file k = \"key\\\\ur\";image [2+3,sdf] abc <- @ 4-6;  k = 3|3 &5+8+99 < 54;  abc[[x,y]] = 8-2 ;";
+ 
 		show(input);
 		Scanner scanner = new Scanner(input).scan();  //Create a Scanner and initialize it
 		show(scanner);   //Display the Scanner

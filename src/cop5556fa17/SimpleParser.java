@@ -100,18 +100,18 @@ public class SimpleParser {
             case Source_Sink_Declaration:
                 retVal = t.isKind(Kind.KW_url) || t.isKind(KW_file);
                 break;
-            case Assignment_Statement:
-            	retVal = t.isKind(Kind.IDENTIFIER);
+            case Image_In_Statement:
+            	retVal = t.isKind(Kind.OP_LARROW);
             	break;
             case Image_Out_Statement:
             	retVal = t.isKind(Kind.OP_RARROW); break;
-            case Image_In_Statement:
+            case Assignment_Statement:
             	retVal = t.isKind(Kind.LSQUARE) || t.isKind(Kind.OP_ASSIGN); break;
             case Declaration:
             	retVal = CheckFirst(NonTerminal.Variable_Declaration) || CheckFirst(NonTerminal.Image_Declaration) || CheckFirst(NonTerminal.Source_Sink_Declaration);
             	break;
             case Statement:
-            	retVal = CheckFirst(NonTerminal.Assignment_Statement) || CheckFirst(NonTerminal.Image_In_Statement) || CheckFirst(NonTerminal.Image_Out_Statement);
+            	retVal = t.isKind(Kind.IDENTIFIER);//CheckFirst(NonTerminal.Assignment_Statement) || CheckFirst(NonTerminal.Image_In_Statement) || CheckFirst(NonTerminal.Image_Out_Statement);
             	break;       
             case XySelector:
             	retVal = t.isKind(Kind.KW_x);
@@ -218,13 +218,13 @@ public class SimpleParser {
     }
 
     void ImageOutStatement() throws SyntaxException {
-        match(Kind.IDENTIFIER);
+        //match(Kind.IDENTIFIER);
         match(Kind.OP_RARROW);
         Sink();
     }
 
     void ImageInStatement() throws SyntaxException {
-        match(Kind.IDENTIFIER);
+        //match(Kind.IDENTIFIER);
         match(Kind.OP_LARROW);
         Source();
     }
@@ -237,7 +237,7 @@ public class SimpleParser {
     }
 
     void Lhs() throws SyntaxException {
-        match(Kind.IDENTIFIER);
+        //match(Kind.IDENTIFIER);
         if (t.isKind(Kind.LSQUARE)) {
             match(Kind.LSQUARE);
             LhsSelector();
