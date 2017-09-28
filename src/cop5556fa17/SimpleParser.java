@@ -61,11 +61,11 @@ public class SimpleParser {
         match(Kind.IDENTIFIER);
         while (CheckFirst(NonTerminal.Declaration) || CheckFirst(NonTerminal.Statement)) {
         	if(CheckFirst(NonTerminal.Declaration)){
-        		Declaration();
+        		declaration();
         		match(Kind.SEMI);
         	}
         	else{
-        		Statement();
+        		statement();
         		match(Kind.SEMI);
         	}
         }
@@ -135,13 +135,13 @@ public class SimpleParser {
         return retVal;
     }
 
-    void Declaration() throws SyntaxException {
+    void declaration() throws SyntaxException {
         if (CheckFirst(NonTerminal.Variable_Declaration)) {
-            VariableDeclaration();
+            variableDeclaration();
         } else if (CheckFirst(NonTerminal.Image_Declaration)) {
-            ImageDeclaration();
+            imageDeclaration();
         } else if (CheckFirst(NonTerminal.Source_Sink_Declaration)) {
-            SourceSinkDeclaration();
+            sourceSinkDeclaration();
         } else {
             throw new SyntaxException(t, "Declaration issue");
         }
@@ -149,13 +149,13 @@ public class SimpleParser {
 
     }
 
-    void SourceSinkDeclaration() throws SyntaxException {
-        SourceSinkType();
+    void sourceSinkDeclaration() throws SyntaxException {
+        sourceSinkType();
         match(Kind.IDENTIFIER);
         match(Kind.OP_ASSIGN);
-        Source();
+        source();
     }
-    public void SourceSinkType() throws SyntaxException {
+    public void sourceSinkType() throws SyntaxException {
         if (t.isKind(Kind.KW_url))
             match(Kind.KW_url);
         else if (t.isKind(Kind.KW_file))
@@ -164,83 +164,83 @@ public class SimpleParser {
             throw new SyntaxException(t, "Invalid SourceSinkType");
     }
     
-    void ImageDeclaration() throws SyntaxException {
+    void imageDeclaration() throws SyntaxException {
         match(Kind.KW_image);
         if (t.isKind(Kind.LSQUARE)) {
             match(Kind.LSQUARE);
-            Expression();
+            expression();
             match(Kind.COMMA);
-            Expression();
+            expression();
             match(Kind.RSQUARE);
         }
         match(Kind.IDENTIFIER);
         if (t.isKind(Kind.OP_LARROW)) {
             match(Kind.OP_LARROW);
-            Source();
+            source();
         }
     }
-    void Source() throws SyntaxException {
+    void source() throws SyntaxException {
         if (t.isKind(Kind.STRING_LITERAL)) {
             match(Kind.STRING_LITERAL);
         } else if (t.isKind(Kind.OP_AT)) {
             match(Kind.OP_AT);
-            Expression();
+            expression();
         } else if (t.isKind(Kind.IDENTIFIER)) {
             match(Kind.IDENTIFIER);
         } else {
             throw new SyntaxException(t, "issue in source terminal");
         }
     }
-    void VariableDeclaration() throws SyntaxException {
-        VarType();
+    void variableDeclaration() throws SyntaxException {
+        varType();
         match(Kind.IDENTIFIER);
         if (t.isKind(Kind.OP_ASSIGN)) {
             match(Kind.OP_ASSIGN);
-            Expression();
+            expression();
         }
 
     }
     
-    void Statement() throws SyntaxException{
+    void statement() throws SyntaxException{
     	match(Kind.IDENTIFIER);
     	if(CheckFirst(NonTerminal.Assignment_Statement)){
-    		AssignmentStatement();
+    		assignmentStatement();
     	}
     	else if(CheckFirst(NonTerminal.Image_In_Statement)){
-    		ImageInStatement();
+    		imageInStatement();
     	}
     	else if(CheckFirst(NonTerminal.Image_Out_Statement)){
-    		ImageOutStatement();
+    		imageOutStatement();
     	}
     	else{
     		throw new SyntaxException(t, "statement error");
     	}
     }
 
-    void ImageOutStatement() throws SyntaxException {
+    void imageOutStatement() throws SyntaxException {
         //match(Kind.IDENTIFIER);
         match(Kind.OP_RARROW);
-        Sink();
+        sink();
     }
 
-    void ImageInStatement() throws SyntaxException {
+    void imageInStatement() throws SyntaxException {
         //match(Kind.IDENTIFIER);
         match(Kind.OP_LARROW);
-        Source();
+        source();
     }
 
-    void AssignmentStatement() throws SyntaxException {
-        Lhs();
+    void assignmentStatement() throws SyntaxException {
+        lhs();
         match(Kind.OP_ASSIGN);
-        Expression();
+        expression();
 
     }
 
-    void Lhs() throws SyntaxException {
+    void lhs() throws SyntaxException {
         //match(Kind.IDENTIFIER);
         if (t.isKind(Kind.LSQUARE)) {
             match(Kind.LSQUARE);
-            LhsSelector();
+            lhsSelector();
             match(Kind.RSQUARE);
         }
     }
@@ -248,17 +248,17 @@ public class SimpleParser {
 
 
 
-    public void FunctionApplication() throws SyntaxException {
-        FunctionName();
+    public void functionApplication() throws SyntaxException {
+        functionName();
         switch (t.kind) {
             case LPAREN:
                 {
-                    match(Kind.KW_url);Expression();match(Kind.RPAREN);
+                    match(Kind.LPAREN);expression();match(Kind.RPAREN);
                 }
                 break;
             case LSQUARE:
                 {
-                    match(Kind.LSQUARE);Selector();match(Kind.RSQUARE);
+                    match(Kind.LSQUARE);selector();match(Kind.RSQUARE);
                 }
                 break;
             default:
@@ -266,7 +266,7 @@ public class SimpleParser {
         }
     }
 
-    public void FunctionName() throws SyntaxException {
+    public void functionName() throws SyntaxException {
         switch (t.kind) {
             case KW_sin:
                 match(Kind.KW_sin);
@@ -297,38 +297,39 @@ public class SimpleParser {
         }
     }
 
-    public void LhsSelector() throws SyntaxException {
+    public void lhsSelector() throws SyntaxException {
         match(Kind.LSQUARE);
         if (CheckFirst(NonTerminal.XySelector)) {
-            XySelector();
+            xySelector();
         } else if (CheckFirst(NonTerminal.RaSelector)) {
-            RaSelector();
+            raSelector();
         } else throw new SyntaxException(t, "Invalid Selector choice");
         match(Kind.RSQUARE);
     }
 
-    public void XySelector() throws SyntaxException {
+    public void xySelector() throws SyntaxException {
         match(Kind.KW_x);
         match(Kind.COMMA);
         match(Kind.KW_y);
     }
 
-    public void RaSelector() throws SyntaxException {
+    public void raSelector() throws SyntaxException {
         match(Kind.KW_r);
         match(Kind.COMMA);
         match(Kind.KW_A);
     }
 
-    public void Selector() throws SyntaxException {
-        match(Kind.KW_r);
-        Expression();
-        match(Kind.KW_A);
+    public void selector() throws SyntaxException {
+        
+        expression();
+        match(Kind.COMMA);
+        expression();
     }
 
 
 
 
-    void Sink() throws SyntaxException {
+    void sink() throws SyntaxException {
         // TODO Auto-generated method stub
         if (t.isKind(Kind.IDENTIFIER)) {
             if(t.getText().equals("file")){
@@ -348,7 +349,7 @@ public class SimpleParser {
 
 
 
-    void VarType() throws SyntaxException {
+    void varType() throws SyntaxException {
         if (t.isKind(Kind.KW_int)) {
             match(Kind.KW_int);
         } else if (t.isKind(Kind.KW_boolean)) {
@@ -382,45 +383,45 @@ public class SimpleParser {
         //handle error
     }
     
-    public void Expression() throws SyntaxException
+    public void expression() throws SyntaxException
 	{
 		//Merge all the expressions text here
-		OrExpression();
+		orExpression();
 		if(t.isKind(Kind.OP_Q))
 		{
 			match(Kind.OP_Q);
-			Expression();
+			expression();
 			match(Kind.OP_COLON);
-			Expression();
+			expression();
 		}
 		//throw new UnsupportedOperationException();
 	}
 	
-	private void OrExpression() throws SyntaxException
+	public void orExpression() throws SyntaxException
 	{
-		AndExpression();
+		andExpression();
 		while(t.isKind(Kind.OP_OR))
 		{
 			match(Kind.OP_OR);
-			AndExpression();
+			andExpression();
 		}
 		
 	}
 	
-	private void AndExpression() throws SyntaxException
+	public void andExpression() throws SyntaxException
 	{
-		EqExpression();
+		eqExpression();
 		while(t.isKind(Kind.OP_AND))
 		{
 			match(Kind.OP_AND);
-			EqExpression();
+			eqExpression();
 		}
 		
 	}
 	
-	private void EqExpression() throws SyntaxException
+	public void eqExpression() throws SyntaxException
 	{
-		RelExpression();
+		relExpression();
 		while(t.isKind(Kind.OP_EQ)||t.isKind(Kind.OP_NEQ))
 		{
 			if(t.isKind(Kind.OP_EQ))
@@ -431,13 +432,13 @@ public class SimpleParser {
 			{
 				match(Kind.OP_NEQ);
 			}
-			RelExpression();
+			relExpression();
 		}	
 	}
 	
-	private void RelExpression() throws SyntaxException
+	public void relExpression() throws SyntaxException
 	{
-		AddExpression();
+		addExpression();
 		while(t.isKind(Kind.OP_LT)||t.isKind(Kind.OP_GT)||t.isKind(Kind.OP_LE)||t.isKind(Kind.OP_GE))
 		{
 			if(t.isKind(Kind.OP_LT))
@@ -456,14 +457,14 @@ public class SimpleParser {
 			{
 				match(Kind.OP_GE);
 			}
-			AddExpression();
+			addExpression();
 		}
 	}
 	
 	
-	private void AddExpression() throws SyntaxException
+	public void addExpression() throws SyntaxException
 	{
-		MultExpression();
+		multExpression();
 		while(t.isKind(Kind.OP_PLUS)||t.isKind(Kind.OP_MINUS))
 		{
 			if(t.isKind(Kind.OP_PLUS))
@@ -474,15 +475,15 @@ public class SimpleParser {
 			{
 				match(Kind.OP_MINUS);	
 			}
-			MultExpression();
+			multExpression();
 		}
 		
 		
 	}
 	
-	private void MultExpression() throws SyntaxException
+	public void multExpression() throws SyntaxException
 	{
-		UnaryExpression();
+		unaryExpression();
 		while(t.isKind(Kind.OP_TIMES)||t.isKind(Kind.OP_DIV)||t.isKind(Kind.OP_MOD))
 		{
 			if(t.isKind(Kind.OP_TIMES))
@@ -497,45 +498,45 @@ public class SimpleParser {
 			{
 				match(Kind.OP_MOD);
 			}
-			UnaryExpression();
+			unaryExpression();
 		}
 	}
 	
-	private void UnaryExpression() throws SyntaxException
+	public void unaryExpression() throws SyntaxException
 	{
 		// TODO Auto-generated method stub
 		if(t.isKind(Kind.OP_PLUS)) 
 		{
 			match(Kind.OP_PLUS);
-			UnaryExpression();
+			unaryExpression();
 		}
 		else if(t.isKind(Kind.OP_MINUS))
 		{
 			match(OP_MINUS);
-			UnaryExpression();
+			unaryExpression();
 		}
 		else{
-			UnaryExpressionNotPlusMinus();
+			unaryExpressionNotPlusMinus();
 		}
 			
 	}
 	
-	public void UnaryExpressionNotPlusMinus() throws SyntaxException
+	public void unaryExpressionNotPlusMinus() throws SyntaxException
 	{
 		if(CheckFirst(NonTerminal.Primary))
 		{
-			Primary();
+			primary();
 		}
 		else if(CheckFirst(NonTerminal.IdentOrPixelSelectorExpression))
 		{
-			 IdentOrPixelSelectorExpression();
+			 identOrPixelSelectorExpression();
 		}
 		
 		else
 		{
 			switch(t.kind)
 			{
-				case OP_EXCL: { match(Kind.OP_EXCL); UnaryExpression();} break;
+				case OP_EXCL: { match(Kind.OP_EXCL); unaryExpression();} break;
 				case KW_x: match(Kind.KW_x); break;
 				case KW_y: match( Kind.KW_y ); break;
 				case KW_r: match( Kind.KW_r ); break;
@@ -554,30 +555,30 @@ public class SimpleParser {
 	}
 	
 	
-	public void Primary() throws SyntaxException
+	public void primary() throws SyntaxException
 	{
 		if(t.isKind(Kind.INTEGER_LITERAL))
 			match(Kind.INTEGER_LITERAL);
 		else if(t.isKind(Kind.LPAREN))
 		{
 			match(Kind.LPAREN);
-			Expression();
+			expression();
 			match(Kind.RPAREN);
 		}
 		else 
 		{
-			FunctionApplication();
+			functionApplication();
 		}
 		
 	}
 	
-	public void IdentOrPixelSelectorExpression() throws SyntaxException
+	public void identOrPixelSelectorExpression() throws SyntaxException
 	{
 		match(Kind.IDENTIFIER);
 		if(t.isKind(Kind.LSQUARE))
 		{
 			match(Kind.LSQUARE);
-			Selector();
+			selector();
 			match(Kind.RSQUARE);
 		}
 	}
@@ -589,7 +590,7 @@ public class SimpleParser {
      * @return
      * @throws SyntaxException
      */
-    private Token matchEOF() throws SyntaxException {
+    public Token matchEOF() throws SyntaxException {
         if (t.kind == EOF) {
             return t;
         }
