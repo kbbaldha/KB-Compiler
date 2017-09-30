@@ -123,7 +123,7 @@ public class SimpleParser {
             	retVal = t.isKind(Kind.IDENTIFIER);
             	break;
             case Primary:
-            	retVal = t.isKind(Kind.INTEGER_LITERAL) || t.isKind(Kind.LPAREN) || CheckFirst(NonTerminal.FunctionApplication);
+            	retVal = t.isKind(Kind.INTEGER_LITERAL) || t.isKind(Kind.LPAREN) || t.isKind(Kind.BOOLEAN_LITERAL) || CheckFirst(NonTerminal.FunctionApplication);
             	break;
             case FunctionApplication: 
             	retVal = t.isKind(Kind.KW_sin) || t.isKind(Kind.KW_cos) ||t.isKind(Kind.KW_atan) ||t.isKind(Kind.KW_abs) ||
@@ -332,13 +332,13 @@ public class SimpleParser {
     void sink() throws SyntaxException {
         // TODO Auto-generated method stub
         if (t.isKind(Kind.IDENTIFIER)) {
-            if(t.getText().equals("file")){
+            /*if(t.getText().equals("file")){
             	match(Kind.IDENTIFIER); // ident must be file
             }
             else{
             	throw new SyntaxException(t,"not fiile");
-            }        	
-            
+            }   */     	
+            match(Kind.IDENTIFIER);
         } else if (t.isKind(Kind.KW_SCREEN)) {
             match(Kind.KW_SCREEN);
         } else {
@@ -559,6 +559,9 @@ public class SimpleParser {
 	{
 		if(t.isKind(Kind.INTEGER_LITERAL))
 			match(Kind.INTEGER_LITERAL);
+		else if(t.isKind(Kind.BOOLEAN_LITERAL)){
+			match(Kind.BOOLEAN_LITERAL);
+		}
 		else if(t.isKind(Kind.LPAREN))
 		{
 			match(Kind.LPAREN);
