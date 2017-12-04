@@ -398,8 +398,8 @@ public class Parser {
     	match(Kind.KW_r);
     	
         match(Kind.COMMA);
-        Expression e1 = new Expression_PredefinedName(t, Kind.KW_A);
-        match(Kind.KW_A);
+        Expression e1 = new Expression_PredefinedName(t, Kind.KW_a);
+        match(Kind.KW_a);
         return new Index(cur,e0,e1);//check null
     }
 

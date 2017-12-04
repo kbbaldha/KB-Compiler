@@ -11,6 +11,7 @@ public class TypeUtils {
 		URL,
 		FILE,
 		SCREEN,
+		STRING,
 		NONE;
 	}
 

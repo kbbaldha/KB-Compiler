@@ -139,22 +139,28 @@ public class CodeGenUtils{
 	public static void genLogTOS(boolean GEN, MethodVisitor mv, Type type) {
 		if (GEN) {
 			//duplicate top of stack
-			mv.visitInsn(Opcodes.DUP);
-			//convert to String
+			mv.visitInsn(Opcodes.DUP);		
 			switch (type) {
 			case INTEGER: {
+				//convert to String
 				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer","toString","(I)Ljava/lang/String;", false);				
 			}
 				break;
 			case BOOLEAN: {
+				//convert to String
 				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean","toString","(Z)Ljava/lang/String;", false);
 			}
 				break;
-			//TODO other types if needed
+			case IMAGE: {
+				//write Image reference to image log, leaving stack in original state
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "cop5556fa17/RuntimeLog", "globalLogAddImage", "("+ImageSupport.ImageDesc + ")V", false);
+				return;
+			}
 			default: {
 				throw new RuntimeException("genLogTOS called unimplemented type " + type);
 			}
 			}
+			//if here, type was INTEGER or BOOLEAN
 			//add ; to end
 			mv.visitLdcInsn(";");
 			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/String", "concat", "(Ljava/lang/String;)Ljava/lang/String;", false);
@@ -162,6 +168,7 @@ public class CodeGenUtils{
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "cop5556fa17/RuntimeLog", "globalLogAddEntry", "(Ljava/lang/String;)V", false);
 
 		}
+		
 	}
 	
 	/**
@@ -201,18 +208,19 @@ public class CodeGenUtils{
 			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "print", "(Ljava/lang/String;)V", false);		
 		}
 	}
-	
-	public  static String getJVMType(Type type){
-		String ret = "";
-		switch(type){
-			case INTEGER: {ret = "I"; break;} 
-			case BOOLEAN: {ret = "Z"; break;} 
-			case IMAGE: {ret = "Ljava/awt/image/BufferedImage;"; break;} 
-			case URL: {ret = "Ljava/net/URL;";break;} 
-			case FILE: {ret = "Ljava/io/File;";break;}
-			case NONE: {ret = null; break;}			
-		}	
 		
-		return ret;
-	}
+	public  static String getJVMType(Type type){		
+			String ret = "";		
+			switch(type){		
+				case INTEGER: {ret = "I"; break;} 		
+				case BOOLEAN: {ret = "Z"; break;} 		
+				case IMAGE: {ret = "Ljava/awt/image/BufferedImage;"; break;} 	
+				case STRING: {ret = "Ljava/lang/String;"; break;}
+				case URL: {ret = "Ljava/net/URL;";break;} 		
+				case FILE: {ret = "Ljava/io/File;";break;}		
+				case NONE: {ret = null; break;}					
+			}			
+					
+			return ret;
+		}
 }

@@ -394,12 +394,12 @@ public class TypeCheckVisitor implements ASTVisitor {
 		Declaration nameDec = symbolTable.get(statement_In.name);
 		statement_In.setDec(nameDec);
 		
-		if(nameDec!=null && nameDec.agType == statement_In.source.agType){
+		//if(nameDec!=null && nameDec.agType == statement_In.source.agType){
 			
-		}
-		else{
-			throwException(statement_In.firstToken, "stmt in error");
-		}
+		//}
+		//else{
+			//throwException(statement_In.firstToken, "stmt in error");
+		//}
 		
 		return statement_In;
 	}
@@ -413,7 +413,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 		
 		statement_Assign.setCartesian(statement_Assign.lhs.isCartesian);
 		
-		if(statement_Assign.lhs.agType != statement_Assign.e.agType){
+		if(statement_Assign.lhs.agType != statement_Assign.e.agType && !(statement_Assign.lhs.agType == Type.IMAGE && statement_Assign.e.agType == Type.INTEGER)){
 			throwException(statement_Assign.firstToken, "error in  stmt assign");
 		}
 		return statement_Assign;
