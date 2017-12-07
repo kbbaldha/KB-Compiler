@@ -215,7 +215,10 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			case OP_PLUS:
 				mv.visitInsn(IADD); break;
 			case OP_MINUS:
-				mv.visitInsn(ISUB); break;
+				mv.visitInsn(ISUB); 
+				mv.visitLabel(endLabel);
+				break;
+				
 			case OP_TIMES:
 				mv.visitInsn(IMUL); break;
 			case OP_DIV:
@@ -291,7 +294,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitExpression_Unary(Expression_Unary expression_Unary, Object arg) throws Exception {
 		// TODO
-		
+		expression_Unary.e.visit(this, arg);
 		switch(expression_Unary.e.agType){
 		
 		case INTEGER:{
@@ -427,8 +430,9 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 				}
 				else
 				{
-					mv.visitLdcInsn(256);
-					mv.visitLdcInsn(256);
+					mv.visitFieldInsn(GETSTATIC,className,"DEF_X",CodeGenUtils.getJVMType(Type.INTEGER));
+					mv.visitFieldInsn(GETSTATIC,className,"DEF_Y",CodeGenUtils.getJVMType(Type.INTEGER));					
+					
 				}
 				mv.visitMethodInsn(INVOKESTATIC, ImageSupport.className,"makeImage", ImageSupport.makeImageSig,false);
 			}
@@ -585,14 +589,16 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 				mv.visitFieldInsn(GETSTATIC,className,"y",CodeGenUtils.getJVMType(Type.INTEGER));
 				break;
 			case KW_X:
-				mv.visitMethodInsn(INVOKESTATIC, ImageSupport.className,"getX", ImageSupport.getXSig,false);
-				mv.visitInsn(DUP);
-				mv.visitFieldInsn(PUTSTATIC, className, "X", CodeGenUtils.getJVMType(Type.INTEGER));
+				//mv.visitMethodInsn(INVOKESTATIC, ImageSupport.className,"getX", ImageSupport.getXSig,false);
+				//mv.visitInsn(DUP);
+				//mv.visitFieldInsn(PUTSTATIC, className, "X", CodeGenUtils.getJVMType(Type.INTEGER));
+				mv.visitFieldInsn(GETSTATIC,className,"X",CodeGenUtils.getJVMType(Type.INTEGER));
 				break;
 			case KW_Y:
-				mv.visitMethodInsn(INVOKESTATIC, ImageSupport.className,"getY", ImageSupport.getYSig,false);
-				mv.visitInsn(DUP);
-				mv.visitFieldInsn(PUTSTATIC, className, "Y", CodeGenUtils.getJVMType(Type.INTEGER));
+				//mv.visitMethodInsn(INVOKESTATIC, ImageSupport.className,"getY", ImageSupport.getYSig,false);
+				//mv.visitInsn(DUP);
+				//mv.visitFieldInsn(PUTSTATIC, className, "Y", CodeGenUtils.getJVMType(Type.INTEGER));
+				mv.visitFieldInsn(GETSTATIC,className,"Y",CodeGenUtils.getJVMType(Type.INTEGER));
 				
 				break;
 			case KW_Z:
@@ -707,42 +713,53 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		}
 		else if(statement_Assign.lhs.agType == Type.IMAGE)
 		{
-			Label  innerStart = new Label();
-			Label  innerEnd = new Label();
-			Label  OuterStart = new Label();
-			Label  OuterEnd = new Label();
-					
+			Label  innerLoopStart = new Label();
+			Label  innerLoopEnd = new Label();
+			Label  outerLoopStart = new Label();
+			Label  outerLoopEnd = new Label();
+		
+			mv.visitFieldInsn(GETSTATIC,className,statement_Assign.lhs.name, ImageSupport.ImageDesc);
+			mv.visitMethodInsn(INVOKESTATIC, ImageSupport.className,"getX", ImageSupport.getXSig,false);
+			mv.visitFieldInsn(PUTSTATIC,className,"X", CodeGenUtils.getJVMType(Type.INTEGER));
+			
+			mv.visitFieldInsn(GETSTATIC,className,statement_Assign.lhs.name, ImageSupport.ImageDesc);
+			mv.visitMethodInsn(INVOKESTATIC, ImageSupport.className,"getY", ImageSupport.getYSig,false);
+			mv.visitFieldInsn(PUTSTATIC,className,"Y", CodeGenUtils.getJVMType(Type.INTEGER));
+			
+			
 			mv.visitLdcInsn(0);
-			//OuterStart:
-			mv.visitLabel(OuterStart);
+			//Outer loop start:
+			mv.visitLabel(outerLoopStart);
 			mv.visitInsn(DUP);
 			mv.visitInsn(DUP);
 			mv.visitFieldInsn(PUTSTATIC,className,"x", CodeGenUtils.getJVMType(Type.INTEGER));
-			mv.visitFieldInsn(GETSTATIC,className,statement_Assign.lhs.name, ImageSupport.ImageDesc);
-			mv.visitMethodInsn(INVOKESTATIC, ImageSupport.className,"getX", ImageSupport.getXSig,false);
-			mv.visitJumpInsn(IF_ICMPEQ, OuterEnd);
-			mv.visitLdcInsn(0);
+			mv.visitFieldInsn(GETSTATIC,className,"X", CodeGenUtils.getJVMType(Type.INTEGER));
 			
-			//innersStart:
-			mv.visitLabel(innerStart);
+			mv.visitJumpInsn(IF_ICMPEQ, outerLoopEnd);
+			
+			
+			mv.visitLdcInsn(0);			
+			//inner  loop start:
+			mv.visitLabel(innerLoopStart);
 			mv.visitInsn(DUP);
 			mv.visitInsn(DUP);
 			mv.visitFieldInsn(PUTSTATIC,className,"y", CodeGenUtils.getJVMType(Type.INTEGER));
-			mv.visitFieldInsn(GETSTATIC,className,statement_Assign.lhs.name, ImageSupport.ImageDesc);
-			mv.visitMethodInsn(INVOKESTATIC, ImageSupport.className,"getY", ImageSupport.getYSig,false);
-			mv.visitJumpInsn(IF_ICMPEQ, innerEnd);		
+			mv.visitFieldInsn(GETSTATIC,className,"Y", CodeGenUtils.getJVMType(Type.INTEGER));
+			mv.visitJumpInsn(IF_ICMPEQ, innerLoopEnd);		
 			statement_Assign.e.visit(this, arg);
 			statement_Assign.lhs.visit(this, arg);
 			mv.visitInsn(ICONST_1);
 			mv.visitInsn(IADD);	
-			mv.visitJumpInsn(GOTO, innerStart);
+			mv.visitJumpInsn(GOTO, innerLoopStart);
 			
-			mv.visitLabel(innerEnd);
+			mv.visitLabel(innerLoopEnd);
 			mv.visitInsn(POP);
+			
 			mv.visitInsn(ICONST_1);
 			mv.visitInsn(IADD);
-			mv.visitJumpInsn(GOTO, OuterStart);
-			mv.visitLabel(OuterEnd);
+			mv.visitJumpInsn(GOTO, outerLoopStart);
+			
+			mv.visitLabel(outerLoopEnd);
 			mv.visitInsn(POP);
 			
 		}
@@ -790,7 +807,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		//TODO HW6
 		//check
 		mv.visitFieldInsn(GETSTATIC, className, sink_Ident.name, CodeGenUtils.getJVMType(Type.STRING));
-		mv.visitMethodInsn(INVOKESTATIC, ImageSupport.className,"write",CodeGenUtils.getJVMType(Type.STRING),false);//invokes the virtual print
+		mv.visitMethodInsn(INVOKESTATIC, ImageSupport.className,"write",ImageSupport.writeSig,false);//invokes the virtual print
 	
 		return sink_Ident;
 		//throw new UnsupportedOperationException();

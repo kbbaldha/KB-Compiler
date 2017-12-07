@@ -269,9 +269,9 @@ public class TypeCheckVisitor implements ASTVisitor {
 			throws Exception {
 		
 		source_CommandLineParam.paramNum.visit(this, arg);
-		source_CommandLineParam.agType = source_CommandLineParam.paramNum.agType;
-		
-		if(source_CommandLineParam.agType  != Type.INTEGER){
+		//source_CommandLineParam.agType = source_CommandLineParam.paramNum.agType;
+		source_CommandLineParam.agType = null;
+		if(source_CommandLineParam.paramNum.agType  != Type.INTEGER){
 			throwException(source_CommandLineParam.firstToken, "cmd line param");
 			
 		}
@@ -306,7 +306,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 		}
 		declaration_SourceSink.agType = TypeUtils.getType(declaration_SourceSink.firstToken);
 		
-		if(declaration_SourceSink.agType != declaration_SourceSink.source.agType){
+		if(declaration_SourceSink.agType != declaration_SourceSink.source.agType && declaration_SourceSink.source.agType!= null){
 			throwException(declaration_SourceSink.firstToken, "error in visit dec");
 		}
 		

@@ -45,5 +45,11 @@ public class RuntimeFunctions {
 	     return (int) y;
 	}
 	
+	public static void main(String[] args){
+		System.out.println(RuntimeFunctions.cart_x(20,60));
+		System.out.println(RuntimeFunctions.cart_y(20,60));
+
+	}
+	
 	
 }
